@@ -1,0 +1,174 @@
+#!/usr/bin/env python3
+"""
+AIO/LLMO 最新ニュース WordPress下書き投稿スクリプト
+実行日: 2026-05-24
+"""
+import os
+import requests
+
+WP_URL = os.environ.get("WP_URL", "https://aiotaisaku.com")
+WP_USER = os.environ.get("WP_USERNAME", "kr_aiota_20250512")
+WP_PASS = os.environ.get("WP_APP_PASSWORD", "fQe7 0nkE rXbm 8gCL BObs qRbs")
+
+ENDPOINT = f"{WP_URL}/wp-json/wp/v2/posts"
+
+articles = [
+    {
+        "title": "Google I/O 2026でAI ModeがGemini 3.5 Flashへ移行——月間10億ユーザー突破とAIO対策の新局面",
+        "content": (
+            "<p>2026年5月19日から開催されたGoogle I/O 2026において、Googleは検索機能に関する大型アップデートを相次いで発表しました。"
+            "中でもAIO（AI最適化）対策の観点から見逃せないのが、<strong>AI ModeのデフォルトモデルがGemini 3.5 Flashへ刷新された</strong>点です。</p>\n\n"
+            "<h2>AI Modeが月間10億ユーザーを突破</h2>\n"
+            "<p>Googleは今回の発表で、AI Modeの月間アクティブユーザーが10億人を突破したと明らかにしました。"
+            "クエリ数はリリース以来、四半期ごとに倍増を続けており、AI検索がもはや「一部のユーザーが使う機能」ではなく、"
+            "標準的な検索体験として定着しつつあることを示しています。"
+            "全検索クエリの48%以上にAI Overviewが表示される現状を考えると、AI検索への対応はすべてのウェブ担当者に求められる必須課題となっています。</p>\n\n"
+            "<h2>過去25年で最大の検索ボックスアップデート</h2>\n"
+            "<p>今回のアップデートで特に注目すべきは、検索ボックス自体が大幅に刷新された点です。"
+            "Googleは「過去25年で最大の検索ボックスへのアップデート」と位置づけており、"
+            "Gemini 3.5 Flashの高度なエージェント機能を活用して、ユーザーの質問に対して最適な形式でリアルタイムに回答を構築する仕組みが導入されました。"
+            "また、AI Overviewからフォローアップ質問を直接送れる新しいインターフェースも追加されています。</p>\n\n"
+            "<h2>Gemini 3.5 Flashの性能向上がAIO対策に与える影響</h2>\n"
+            "<p>AI ModeのベースモデルがGemini 3.5 Flashに変わったことで、AIが情報を処理・引用する精度と速度が向上します。"
+            "これはAIO対策の観点から見ると、<strong>構造が明確でE-E-A-Tを満たしたコンテンツが、より高い確率でAI回答に引用される</strong>可能性を意味します。</p>\n"
+            "<p>特に重要なのは、AIが自前で生成できる「汎用的な要約」は引用価値がないとGoogleが明言している点です。"
+            "独自の一次情報・専門知見・実体験を盛り込んだコンテンツへの転換が、今後のAIO対策の核心となります。</p>\n\n"
+            "<h2>今すぐ取り組むべきAIO対策の3つのポイント</h2>\n"
+            "<ul>\n"
+            "<li><strong>FAQページの構造化データ実装</strong>：FAQPage構造化データを正しく実装するだけで、AI引用率が平均30%向上するデータがあります。</li>\n"
+            "<li><strong>一次情報・独自データの掲載</strong>：自社調査や実体験を盛り込んだコンテンツは、汎用コンテンツとの明確な差別化につながります。</li>\n"
+            "<li><strong>フォローアップ質問への対応</strong>：ユーザーが連続した質問をすることを想定し、関連トピックをコンテンツ内で体系的にカバーしておくことが重要です。</li>\n"
+            "</ul>\n\n"
+            "<p>AI Modeの急速な普及と性能向上を踏まえると、AIO対策はもはや「将来への備え」ではなく、"
+            "<strong>今この瞬間の集客に直結する施策</strong>です。"
+            "Google I/O 2026の発表内容を参考に、自社サイトの最適化戦略を見直すタイミングといえるでしょう。</p>"
+        ),
+        "status": "draft",
+    },
+    {
+        "title": "Google公式「AI検索最適化ガイド」を徹底解説——5つの「効果なし」施策とLLMO・AIO対策の新常識",
+        "content": (
+            "<p>2026年5月15日、GoogleはAI検索機能向けの公式最適化ガイドを初めて統合公開しました。"
+            "これはSEO・AIO・LLMO対策に携わるすべての担当者にとって、見逃せない重要な発表です。</p>\n\n"
+            "<h2>Googleが公式に「効果なし」と断言した5つの施策</h2>\n"
+            "<p>今回のガイドで最も衝撃的だったのは、Googleが特定の施策を名指しで「効果がない」と明言したことです。"
+            "以下の5つは今後、優先順位を下げるべき施策として挙げられています。</p>\n"
+            "<ol>\n"
+            "<li><strong>llms.txtなどAI向け特殊ファイルの設置</strong>：AIクローラー向けの特別なファイルを設置しても、引用率向上には直結しないとされています。</li>\n"
+            "<li><strong>コンテンツのチャンク化（AI向け分割）</strong>：AIが読みやすいように意図的に文章を短く区切る手法は、効果が認められませんでした。</li>\n"
+            "<li><strong>AI向けのコンテンツ書き直し</strong>：AI回答に引用されることだけを目的としたコンテンツの作り直しは推奨されません。</li>\n"
+            "<li><strong>人工的なサイテーション獲得</strong>：不自然な形で他サイトからの言及を増やす手法は無効です。</li>\n"
+            "<li><strong>構造化データへの過剰投資</strong>：構造化データの追加は有効ですが、それだけに過剰注力するのは非効率です。</li>\n"
+            "</ol>\n\n"
+            "<h2>Googleが推奨する「本質的なコンテンツ」とは</h2>\n"
+            "<p>一方でGoogleが明確に価値を認めているのは、<strong>独自の専門性・一次情報・実体験を反映したコンテンツ</strong>です。"
+            "AIが自前で生成できる汎用的な要約には引用価値がなく、"
+            "人間にしか書けないオリジナルな情報こそが、AI検索時代の競争優位の源泉となります。</p>\n\n"
+            "<h2>LLMOの4本柱が業界標準に</h2>\n"
+            "<p>今回のガイド発表を経て、LLMO（大規模言語モデル最適化）の実践においては以下の4本柱が業界標準として確立しつつあります。</p>\n"
+            "<ul>\n"
+            "<li><strong>エンティティ設計</strong>：自社・自サービスをAIが正確に認識できるよう、情報の一貫性と網羅性を高める</li>\n"
+            "<li><strong>E-E-A-T強化</strong>：経験・専門性・権威性・信頼性を示す具体的な証拠をコンテンツに組み込む</li>\n"
+            "<li><strong>AI可読コンテンツ構造</strong>：見出し・リスト・表など、AIが解析しやすい文書構造を採用する</li>\n"
+            "<li><strong>クロスプラットフォーム最適化</strong>：GoogleだけでなくChatGPT・Gemini・Perplexityなど複数のAI検索エンジンを対象に対策する</li>\n"
+            "</ul>\n\n"
+            "<h2>今後の対策方針</h2>\n"
+            "<p>Googleの公式見解が出たことで、「何をすべきか」の方向性が格段に明確になりました。"
+            "小手先のテクニックへの投資を見直し、<strong>読者と検索AIの両方にとって真に価値あるコンテンツ制作</strong>に注力することが、"
+            "2026年以降のAIO・LLMO対策の王道といえます。"
+            "まずは自社の既存コンテンツの中で、独自の知見や一次情報が含まれているページを強化することから始めてみましょう。</p>"
+        ),
+        "status": "draft",
+    },
+    {
+        "title": "2026年5月Googleコアアップデート開始——AI検索時代のAIO・LLMO対策への影響と対応策",
+        "content": (
+            "<p>2026年5月21日、Googleは「2026年5月コアアップデート」の展開を開始しました。"
+            "前回のコアアップデートから3〜4ヶ月サイクルが一般的だった従来と比べ、"
+            "<strong>今回は大幅に短いサイクルでの実施</strong>となっており、検索担当者の間で注目を集めています。"
+            "さらに今回は、Google I/O 2026での大型発表と同週に重なったことで、"
+            "検索環境が一気に動いた「歴史的な一週間」となりました。</p>\n\n"
+            "<h2>コアアップデートとAI Overviewの同時変化</h2>\n"
+            "<p>今回の特徴は、コアアップデートとAI Modeの大型刷新（Gemini 3.5 Flashへの移行）がほぼ同時に発生した点です。"
+            "これにより、従来の検索ランキング変動に加え、AI Overview・AI Modeでの表示状況も同時に変化する可能性があります。"
+            "全検索クエリの48%以上にAI Overviewが表示される現状では、"
+            "<strong>オーガニック検索とAI検索の両方を同時にモニタリングする体制</strong>が求められます。</p>\n\n"
+            "<h2>今回のアップデートでGoogleが評価しているポイント</h2>\n"
+            "<p>Google I/O 2026と同時期に公開された公式AI検索最適化ガイドの内容と合わせて考えると、"
+            "今回のコアアップデートでGoogleが重視しているポイントが見えてきます。</p>\n"
+            "<ul>\n"
+            "<li><strong>コンテンツの独自性</strong>：AIが自動生成できない一次情報・独自調査・実体験ベースのコンテンツ</li>\n"
+            "<li><strong>E-E-A-Tの充実度</strong>：著者の専門性・経験が明示されているか、信頼できる情報源として認識されているか</li>\n"
+            "<li><strong>ユーザー意図への適合性</strong>：検索クエリの背後にあるユーザーの真の目的に応えているか</li>\n"
+            "<li><strong>モバイル・ページ速度</strong>：AI検索時代でもCore Web Vitalsの基準は依然として重要</li>\n"
+            "</ul>\n\n"
+            "<h2>LLMO・AIO対策として今週すべきアクション</h2>\n"
+            "<p>コアアップデート展開中は大きな変更を加えるよりも、まず現状の把握が先決です。"
+            "以下のアクションを優先的に実施することをお勧めします。</p>\n"
+            "<ol>\n"
+            "<li><strong>Search Consoleでの変動確認</strong>：クリック数・表示回数・AI Overview表示の変化を日次でチェックする</li>\n"
+            "<li><strong>AI引用状況の確認</strong>：ChatGPT・Gemini・Perplexityで自社に関連するキーワードを検索し、引用されているか確認する</li>\n"
+            "<li><strong>上昇・下降ページの分析</strong>：変動したページのコンテンツの特徴を分析し、今後の改善方針に活かす</li>\n"
+            "<li><strong>競合サイトとの比較</strong>：競合がAI検索でどのように引用されているかを調査し、差分を把握する</li>\n"
+            "</ol>\n\n"
+            "<h2>まとめ：AI検索時代のアップデート対応の考え方</h2>\n"
+            "<p>コアアップデートへの対応は以前から「小手先の対策より本質的なコンテンツ品質の向上」が原則でした。"
+            "AI検索が主流になりつつある2026年においても、その原則は変わりません。"
+            "むしろ<strong>Googleの公式ガイドで明示された通り、人間にしか作れない独自性のあるコンテンツこそが最大の防御策</strong>です。"
+            "今回のアップデートを自社サイトのコンテンツ品質を見直す好機と捉え、AIO・LLMO対策を加速させましょう。</p>"
+        ),
+        "status": "draft",
+    },
+]
+
+
+def get_existing_titles():
+    """既存の下書き記事タイトルを取得して重複チェック用に返す"""
+    try:
+        resp = requests.get(
+            ENDPOINT,
+            auth=(WP_USER, WP_PASS),
+            params={"status": "draft", "per_page": 50},
+            timeout=15,
+        )
+        if resp.status_code == 200:
+            return [p["title"]["rendered"] for p in resp.json()]
+    except Exception as e:
+        print(f"既存記事の取得に失敗: {e}")
+    return []
+
+
+def post_article(article, existing_titles):
+    title = article["title"]
+    if title in existing_titles:
+        print(f"  スキップ（重複）: {title[:50]}...")
+        return False
+
+    resp = requests.post(
+        ENDPOINT,
+        auth=(WP_USER, WP_PASS),
+        json=article,
+        timeout=30,
+    )
+
+    if resp.status_code in (200, 201):
+        data = resp.json()
+        print(f"  ✓ 投稿成功 | ID: {data['id']} | {title[:50]}...")
+        return True
+    else:
+        print(f"  ✗ 投稿失敗 | HTTP {resp.status_code}: {resp.text[:200]}")
+        return False
+
+
+if __name__ == "__main__":
+    print("=== AIO/LLMO ニュース下書き投稿 (2026-05-24) ===")
+    existing = get_existing_titles()
+    print(f"既存下書き数: {len(existing)}")
+
+    success = 0
+    for i, article in enumerate(articles, 1):
+        print(f"\n[{i}/{len(articles)}] 処理中...")
+        if post_article(article, existing):
+            success += 1
+
+    print(f"\n=== 完了: {success}/{len(articles)} 件を下書き投稿しました ===")
