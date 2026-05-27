@@ -1,0 +1,22 @@
+name: WordPress下書き投稿
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: '「yes」と入力すると投稿を実行します'
+        required: true
+        default: 'no'
+
+jobs:
+  post:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.inputs.confirm == 'yes' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Python依存関係なし（標準ライブラリのみ）
+        run: python3 --version
+
+      - name: WordPress下書き投稿を実行
+        run: python3 post_articles.py
