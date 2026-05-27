@@ -24,4 +24,4 @@ jobs:
           WP_USERNAME: ${{ secrets.WP_USERNAME }}
           WP_APP_PASSWORD: ${{ secrets.WP_APP_PASSWORD }}
           WP_URL: https://aiotaisaku.com
-        run: python post_drafts.py
+        run: python post_articles.py
