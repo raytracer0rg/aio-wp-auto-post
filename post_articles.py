@@ -53,7 +53,7 @@ def generate_articles(system: str, user: str) -> list[dict]:
     if match:
         text = match.group(1)
     try:
-        return json.loads(text)
+        return json.loads(text, strict=False)
     except json.JSONDecodeError as e:
         print(f"[ERROR] Claude API レスポンスのJSON解析に失敗しました: {e}")
         print(f"レスポンス先頭500文字:\n{text[:500]}")
