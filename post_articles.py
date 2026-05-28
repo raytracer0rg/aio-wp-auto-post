@@ -1,9 +1,12 @@
 import os
 import re
+import sys
 import json
 import base64
 import requests
 import anthropic
+
+sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 
 WP_URL = os.environ.get("WP_URL", "https://aiotaisaku.com")
 WP_USERNAME = os.environ.get("WP_USERNAME")
