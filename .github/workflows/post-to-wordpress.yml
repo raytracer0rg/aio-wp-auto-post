@@ -17,11 +17,12 @@ jobs:
           python-version: '3.11'
       
       - name: Install dependencies
-        run: pip install requests
-      
+        run: pip install requests anthropic
+
       - name: Post drafts to WordPress
         env:
           WP_USERNAME: ${{ secrets.WP_USERNAME }}
           WP_APP_PASSWORD: ${{ secrets.WP_APP_PASSWORD }}
           WP_URL: https://aiotaisaku.com
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: python post_articles.py
