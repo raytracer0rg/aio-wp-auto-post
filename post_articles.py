@@ -5,8 +5,10 @@ import json
 import base64
 import requests
 import anthropic
+from dotenv import load_dotenv
 
 sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+load_dotenv()
 
 WP_URL = os.environ.get("WP_URL", "https://aiotaisaku.com")
 WP_USERNAME = os.environ.get("WP_USERNAME")
