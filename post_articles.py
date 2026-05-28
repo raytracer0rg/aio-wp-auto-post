@@ -60,32 +60,54 @@ def generate_articles(system: str, user: str) -> list[dict]:
         raise
 
 
+_QUOTE_BLOCK_TPL = (
+    '<!-- wp:quote {{"className":"edit-hint-block"}} -->\n'
+    '<blockquote class="wp-block-quote edit-hint-block">\n'
+    '<p>✏️ <strong>EDIT HINT</strong>：{hint}</p>\n'
+    '<cite>※このブロックは編集後に削除してください</cite>\n'
+    '</blockquote>\n'
+    '<!-- /wp:quote -->'
+)
+
+
 def wrap_edit_hints(content: str) -> str:
-    # WordPress は通常の HTML コメントを保存時に削除するため wp:html ブロック内で保持する。
-    # CLAUDE.md の指示で既にラップ済みの場合も考慮し、一旦除去してから統一的に再付与する。
+    # 新形式（引用ブロック）はそのまま通す。
+    # 旧形式（<!-- wp:html -->＋HTMLコメント）と裸のHTMLコメントを新形式に変換する。
+
+    def hint_to_block(hint_text: str) -> str:
+        return _QUOTE_BLOCK_TPL.format(hint=hint_text.strip())
+
+    def replace_old_wrapped(m):
+        raw = m.group(1)
+        hint_text = re.sub(r'<!--\s*✏️ EDIT HINT:\s*(.*?)\s*-->', r'\1', raw, flags=re.DOTALL)
+        return hint_to_block(hint_text)
+
+    # 旧形式: <!-- wp:html --> + HTMLコメント
     content = re.sub(
         r'<!--\s*wp:html\s*-->\s*(<!--\s*✏️ EDIT HINT:.*?-->)\s*<!--\s*/wp:html\s*-->',
-        r'\1',
+        replace_old_wrapped,
         content,
         flags=re.DOTALL,
     )
-    pattern = r'(<!--\s*✏️ EDIT HINT:.*?-->)'
-    def replacer(m):
-        return f"<!-- wp:html -->\n{m.group(1)}\n<!-- /wp:html -->"
-    return re.sub(pattern, replacer, content, flags=re.DOTALL)
+
+    # 裸のHTMLコメント（新形式ブロック内には存在しないため誤マッチしない）
+    content = re.sub(
+        r'<!--\s*✏️ EDIT HINT:\s*(.*?)\s*-->',
+        lambda m: hint_to_block(m.group(1)),
+        content,
+        flags=re.DOTALL,
+    )
+
+    return content
 
 
 def post_draft(title: str, content: str) -> dict:
-    hints = re.findall(r'<!--\s*✏️ EDIT HINT:.*?-->', content, re.DOTALL)
+    wrapped = wrap_edit_hints(content)
+    hint_count = len(re.findall(r'<!-- wp:quote \{"className":"edit-hint-block"\}', wrapped))
 
     print(f"\n{'=' * 60}")
     print(f"タイトル: {title}")
-    print(f"EDIT HINT コメント数: {len(hints)}")
-    for i, hint in enumerate(hints, 1):
-        preview = hint[:120] + ("..." if len(hint) > 120 else "")
-        print(f"  [{i}] {preview}")
-
-    wrapped = wrap_edit_hints(content)
+    print(f"EDIT HINT ブロック数: {hint_count}")
 
     print(f"\n--- WordPress送信直前コンテンツ（先頭600文字）---")
     print(wrapped[:600])
